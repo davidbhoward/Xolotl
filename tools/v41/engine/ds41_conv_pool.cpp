@@ -12,6 +12,8 @@
 #include <mutex>
 #include <new>
 
+#include "ds41_sys.hpp"
+
 #ifdef DS41_POOL_CUDA
 #include <cuda_runtime.h>
 #endif
@@ -158,7 +160,7 @@ struct Ds41ConvPool::Impl {
         } else
 #endif
         {
-            p = (uint8_t *) std::aligned_alloc(4096, ns * cfg.slab_bytes);
+            p = (uint8_t *) ds41_sys::aligned_alloc(4096, ns * cfg.slab_bytes);
             if (!p) { err = "pool: out of host memory"; return false; }
         }
         extents.push_back(p);
@@ -414,7 +416,7 @@ Ds41ConvPool::~Ds41ConvPool() {
         return;
     }
 #endif
-    for (uint8_t * e : im.extents) std::free(e);
+    for (uint8_t * e : im.extents) ds41_sys::aligned_free(e);
 }
 
 bool Ds41ConvPool::init(const Ds41PoolLayout & layout, const Ds41PoolConfig & cfg, std::string & err) {
